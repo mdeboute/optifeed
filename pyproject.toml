@@ -1,5 +1,5 @@
 [project]
-name = "OptiFeed"
+name = "optifeed"
 version = "0.1.0"
 description = "A Telegram bot for financial news and stock market analysis, powered by Google Generative AI."
 readme = "README.md"

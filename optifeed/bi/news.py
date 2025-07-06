@@ -8,9 +8,9 @@ import requests
 from bs4 import BeautifulSoup
 from dateutil import parser as date_parser
 
-from db.models import NewsItem
-from utils.config import BRAVE_API_KEY, DEFAULT_NEWS_LIMIT, FMP_API_KEY
-from utils.logger import logger
+from optifeed.db.models import NewsItem
+from optifeed.utils.config import BRAVE_API_KEY, DEFAULT_NEWS_LIMIT, FMP_API_KEY
+from optifeed.utils.logger import logger
 
 
 # === Utilities ===

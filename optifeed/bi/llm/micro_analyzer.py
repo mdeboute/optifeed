@@ -2,10 +2,10 @@ from typing import Optional
 
 import google.generativeai as genai
 
-from bi.llm.macro_analyzer import parse_gemini_json
-from db.models import AnalyzedNews, TickerKPIs, TickerTendency
-from utils.config import GOOGLE_API_KEY, LLM_MODEL
-from utils.logger import logger
+from optifeed.bi.llm.macro_analyzer import parse_gemini_json
+from optifeed.db.models import AnalyzedNews, TickerKPIs, TickerTendency
+from optifeed.utils.config import GOOGLE_API_KEY, LLM_MODEL
+from optifeed.utils.logger import logger
 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel(LLM_MODEL)

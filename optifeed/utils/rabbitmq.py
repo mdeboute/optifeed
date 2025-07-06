@@ -2,8 +2,8 @@ import json
 
 import pika
 
-from utils.config import RABBIT_HOST, RABBIT_PASS, RABBIT_USER
-from utils.logger import logger
+from optifeed.utils.config import RABBIT_HOST, RABBIT_PASS, RABBIT_USER
+from optifeed.utils.logger import logger
 
 
 def publish_task(task: dict):

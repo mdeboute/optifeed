@@ -1,7 +1,7 @@
 import requests
 
-from utils.config import TELEGRAM_CHAT_ID, TELEGRAM_TOKEN
-from utils.logger import logger
+from optifeed.utils.config import TELEGRAM_CHAT_ID, TELEGRAM_TOKEN
+from optifeed.utils.logger import logger
 
 
 def send_telegram_message(message: str):

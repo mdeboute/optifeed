@@ -1,7 +1,7 @@
 import yfinance as yf
 
-from db.models import TickerKPIs
-from utils.logger import logger
+from optifeed.db.models import TickerKPIs
+from optifeed.utils.logger import logger
 
 
 def fetch_financial_kpis(ticker: str) -> TickerKPIs:

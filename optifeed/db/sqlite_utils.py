@@ -1,8 +1,8 @@
 import sqlite3
 
-from db.models import AnalyzedNews, NewsItem
-from utils.config import SQL_DB_FILE
-from utils.logger import logger
+from optifeed.db.models import AnalyzedNews, NewsItem
+from optifeed.utils.config import SQL_DB_FILE
+from optifeed.utils.logger import logger
 
 
 def init_db():

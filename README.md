@@ -40,7 +40,7 @@ flowchart TD
 - **Python 3.10+**
 - **FastAPI:** HTTP server handling Telegram webhooks
 - **RabbitMQ** (via Docker): task queue broker
-- **Chroma / Qdrant:** for future semantic vector search
+- **ChromaDB:** for future semantic vector search
 - **Gemini API:** advanced LLM-driven analysis
 - **ngrok:** for local development to expose FastAPI
 
@@ -62,15 +62,14 @@ flowchart TD
 # Clone the repo & install Python deps
 git clone https://github.com/your-user/optifeed.git
 cd optifeed
-python -m venv .venv
+uv sync
 source .venv/bin/activate
-pip install -r requirements.txt
 
 # Start RabbitMQ
 docker-compose up -d
 
 # Launch FastAPI server
-uvicorn fastapi_app.app:app --reload --host 0.0.0.0 --port 8000
+cd src && uvicorn api.app:app --reload --host 0.0.0.0 --port 8000
 
 # Expose FastAPI via ngrok
 ngrok http 8000
@@ -83,7 +82,7 @@ ngrok http 8000
 Replace `NGROK_URL` with your actual ngrok HTTPS endpoint:
 
 ```bash
-curl -X POST "https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook"      -d "url=https://NGROK_URL/webhook"
+curl -X POST "https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook" -d "url=https://NGROK_URL/webhook"
 ```
 
 ---
@@ -101,7 +100,7 @@ python worker/worker.py
 1. A user sends a command like:
 
 ```
-/health_check
+/ask something
 ```
 
 2. Telegram POSTs it to `/webhook`.
@@ -110,7 +109,7 @@ python worker/worker.py
 5. The bot replies:
 
 ```
-✅ Bot: I received your query «/health_check».
+✅ Bot: I received your query "something". Here's what I found...
 ```
 
 ---

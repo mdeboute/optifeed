@@ -2,7 +2,7 @@ import sys
 
 from loguru import logger
 
-from utils.config import LOG_FILE
+from optifeed.utils.config import LOG_FILE
 
 logger.remove()  # remove default handler
 

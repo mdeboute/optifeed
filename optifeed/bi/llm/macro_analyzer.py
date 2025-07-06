@@ -4,9 +4,9 @@ from typing import Optional
 
 import google.generativeai as genai
 
-from db.models import AnalyzedNews, NewsItem
-from utils.config import GOOGLE_API_KEY, LLM_MODEL
-from utils.logger import logger
+from optifeed.db.models import AnalyzedNews, NewsItem
+from optifeed.utils.config import GOOGLE_API_KEY, LLM_MODEL
+from optifeed.utils.logger import logger
 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel(LLM_MODEL)

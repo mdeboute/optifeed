@@ -11,6 +11,7 @@ BRAVE_API_KEY = os.getenv("BRAVE_API_KEY")
 TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+TELEGRAM_BOT_USERNAME = "@macro_hedge_bot"
 
 DEFAULT_NEWS_LIMIT = 30
 
@@ -31,3 +32,5 @@ RABBIT_PASS = os.getenv("RABBIT_PASS")
 
 # LLM
 LLM_MODEL = "gemini-2.0-flash-lite"
+
+ADMIN_USER = os.getenv("ADMIN_USER")

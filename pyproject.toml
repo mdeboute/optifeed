@@ -24,3 +24,13 @@ dependencies = [
     "uvicorn>=0.35.0",
     "yfinance>=0.2.64",
 ]
+authors = [
+    {name = "Martin Debouté", email = "martin.deboute@gmail.com"},
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["optifeed"]

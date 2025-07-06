@@ -1,7 +1,7 @@
-from api.app import publish_task
-from db.sqlite_utils import get_unsent_analyzed_news, mark_as_sent
-from utils.config import TELEGRAM_CHAT_ID
-from utils.logger import logger
+from optifeed.api.app import publish_task
+from optifeed.db.sqlite_utils import get_unsent_analyzed_news, mark_as_sent
+from optifeed.utils.config import TELEGRAM_CHAT_ID
+from optifeed.utils.logger import logger
 
 
 def escape_markdown(text: str) -> str:
@@ -34,7 +34,14 @@ def detect_signals_and_push():
             f"• Sectors: _{', '.join([escape_markdown(s) for s in news.affected_sectors or ['Other']])}_"
         )
 
-        publish_task({"type": "alert", "chat_id": TELEGRAM_CHAT_ID, "message": text, "parse_mode": "MarkdownV2"})
+        publish_task(
+            {
+                "type": "alert",
+                "chat_id": TELEGRAM_CHAT_ID,
+                "message": text,
+                "parse_mode": "MarkdownV2",
+            }
+        )
 
         mark_as_sent(news.id)
         logger.success(f"✅ Sent alert for news id {news.id}")

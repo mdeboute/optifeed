@@ -7,5 +7,44 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: mdeboute
-      RABBITMQ_DEFAULT_PASS: 2453
+      RABBIT_USER: guest
+      RABBIT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  fastapi:
+    build: .
+    environment:
+      - SERVICE=fastapi
+    ports:
+      - "8000:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    build: .
+    environment:
+      - SERVICE=worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  scheduler:
+    build: .
+    environment:
+      - SERVICE=scheduler
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http fastapi:8000 --domain=maximum-known-eagle.ngrok-free.app
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"

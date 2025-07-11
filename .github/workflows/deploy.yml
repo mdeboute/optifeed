@@ -23,5 +23,7 @@ jobs:
           script: |
             cd /home/mdeboute/Desktop/optifeed
             git pull origin deploy
-            make clean && make build && make up
-
+            docker container prune -f
+            docker image prune -f
+            docker volume prune -f
+            docker compose up -d --build

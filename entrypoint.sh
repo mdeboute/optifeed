@@ -7,7 +7,7 @@ if [ "$SERVICE" = "fastapi" ]; then
 elif [ "$SERVICE" = "worker" ]; then
     uv run -m optifeed.worker.worker
 elif [ "$SERVICE" = "scheduler" ]; then
-    echo "0 12 * * * PYTHONPATH=/app uv run -m optifeed.pipeline >> /proc/1/fd/1 2>&1" > /etc/cron.d/pipeline-cron
+    echo "0 12 * * * uv run -m optifeed.pipeline.daily_summary >> /proc/1/fd/1 2>&1" > /etc/cron.d/pipeline-cron
     chmod 0644 /etc/cron.d/pipeline-cron
     crontab /etc/cron.d/pipeline-cron
     cron -f

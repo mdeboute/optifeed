@@ -37,9 +37,7 @@ def detect_signals_and_push():
         publish_task(
             {
                 "type": "alert",
-                "chat_id": TELEGRAM_CHAT_ID,
                 "message": text,
-                "parse_mode": "MarkdownV2",
             }
         )
 

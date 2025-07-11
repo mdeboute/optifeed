@@ -1,4 +1,4 @@
-.PHONY: up down build stop start logs logs-fastapi logs-worker logs-ngrok restart
+.PHONY: up down build stop start logs logs-fastapi logs-worker logs-ngrok restart clean
 
 up:
 	docker compose --env-file .env up -d
@@ -29,3 +29,8 @@ logs-ngrok:
 
 restart:
 	docker compose down && docker compose --env-file .env up -d
+
+clean:
+	docker container prune -f
+	docker image prune -f
+	docker volume prune -f

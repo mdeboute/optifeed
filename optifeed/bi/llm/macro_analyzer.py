@@ -2,14 +2,9 @@ import json
 import re
 from typing import Optional
 
-import google.generativeai as genai
-
 from optifeed.db.models import AnalyzedNews, NewsItem
-from optifeed.utils.config import GOOGLE_API_KEY, LLM_MODEL
+from optifeed.utils.config import model
 from optifeed.utils.logger import logger
-
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel(LLM_MODEL)
 
 
 def parse_gemini_json(text: str) -> Optional[dict]:

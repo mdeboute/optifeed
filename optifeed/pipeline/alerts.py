@@ -15,7 +15,7 @@ from optifeed.utils.logger import logger
 from optifeed.worker.tasks import detect_signals_and_push
 
 
-def run_pipeline():
+def main():
     logger.info("🚀 Starting daily pipeline...")
 
     # Init DB
@@ -61,4 +61,4 @@ def run_pipeline():
 
 
 if __name__ == "__main__":
-    run_pipeline()
+    main()

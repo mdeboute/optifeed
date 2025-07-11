@@ -54,7 +54,9 @@ def process_task(task: dict):
                 send_telegram_message("🏓 Pong!")
             else:
                 prompt = BASE_PROMPT
-                if task.get("from_user") == int(ADMIN_USER):
+                if task.get("data").get("message").get("from").get("id") == int(
+                    ADMIN_USER
+                ):
                     prompt += "\nYou're talking to the admin so call it 'my lord' or other fancy name/title."
                 response = ask_something(f"{prompt}\n\nQuestion: {query}")
                 send_telegram_message(response)

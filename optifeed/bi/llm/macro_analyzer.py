@@ -18,6 +18,7 @@ def parse_gemini_json(text: str) -> Optional[dict]:
 
 
 def analyze_macro(news_item: NewsItem) -> Optional[AnalyzedNews]:
+    """Analyze macroeconomic news and return structured data."""
     prompt = f"""
     You are a senior macroeconomic analyst assistant.
 

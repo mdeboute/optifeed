@@ -32,6 +32,7 @@ Answer with a little bit of humor when you can.
 
 # --- Gemini interaction
 def ask_something(prompt: str) -> str:
+    """Ask a question to the Gemini model and return the response."""
     try:
         response = model.generate_content(prompt)
         return response.text.strip()
@@ -42,6 +43,7 @@ def ask_something(prompt: str) -> str:
 
 # --- Task processing
 def process_task(task: dict):
+    """Process a task from RabbitMQ."""
     logger.debug(f"🚀 Processing task: {task}")
     match task.get("type"):
         case "ask":
@@ -72,6 +74,7 @@ def process_task(task: dict):
 
 # --- RabbitMQ consumer callback
 def callback(ch, method, properties, body):
+    """Callback function for RabbitMQ messages."""
     try:
         task = json.loads(body)
         process_task(task)
@@ -85,6 +88,7 @@ def callback(ch, method, properties, body):
 
 # --- Worker start with retry
 def start_worker():
+    """Start the RabbitMQ worker with retry logic."""
     credentials = pika.PlainCredentials(RABBIT_USER, RABBIT_PASS)
     params = pika.ConnectionParameters(RABBIT_HOST, 5672, "/", credentials)
 

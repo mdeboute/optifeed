@@ -5,6 +5,7 @@ from optifeed.utils.logger import logger
 
 
 def fetch_financial_kpis(ticker: str) -> TickerKPIs:
+    """Fetch financial KPIs for a given stock ticker."""
     try:
         stock = yf.Ticker(ticker)
         info = stock.info

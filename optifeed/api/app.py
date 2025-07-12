@@ -9,6 +9,7 @@ app = FastAPI()
 
 @app.post("/webhook")
 async def webhook(request: Request):
+    """Handle incoming webhook requests and publish tasks to RabbitMQ."""
     data = await request.json()
     logger.debug(f"🤖 Received webhook: {data}")
 

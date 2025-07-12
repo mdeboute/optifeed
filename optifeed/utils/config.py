@@ -9,7 +9,6 @@ load_dotenv()
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 BRAVE_API_KEY = os.getenv("BRAVE_API_KEY")
-TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_BOT_USERNAME = "@macro_hedge_bot"

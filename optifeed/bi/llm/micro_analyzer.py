@@ -9,6 +9,7 @@ from optifeed.utils.logger import logger
 def analyze_micro(
     news: AnalyzedNews, financial_data: TickerKPIs
 ) -> Optional[TickerTendency]:
+    """Analyze microeconomic impact of macro news on a specific ticker."""
     prompt = f"""
     You are a senior equity analyst assistant.
 

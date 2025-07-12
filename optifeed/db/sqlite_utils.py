@@ -124,8 +124,8 @@ def get_unsent_analyzed_news() -> list[AnalyzedNews]:
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT id, text, impact_score, magnitude_score, affected_sectors 
-        FROM analyzed_news 
+        SELECT id, text, impact_score, magnitude_score, affected_sectors
+        FROM analyzed_news
         WHERE sent IS NULL OR sent = 0
         ORDER BY created_at DESC
         """

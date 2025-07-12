@@ -32,6 +32,9 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
 
   scheduler:
     build: .
@@ -40,10 +43,13 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
 
   ngrok:
     image: ngrok/ngrok:latest
-    command: http fastapi:8000 --domain=maximum-known-eagle.ngrok-free.app
+    command: http fastapi:8000 --domain=${NGROK_DOMAIN}
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     ports:

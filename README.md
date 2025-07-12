@@ -4,14 +4,12 @@
 **Optifeed** is an **intelligent Telegram bot** built to:
 
 - **spot investment opportunities** from financial news and macro events,
-- deliver **strategic and macroeconomic insights**,
-- and eventually evolve into a **fully autonomous trading system**.
+- and provide **contextual analysis** of market trends.
 
 It follows an **event-driven, modular architecture**, with future integrations planned for:
 
 - **LLM (Gemini)** to perform deep semantic analysis,
-- a **vector database** for similarity search across news & reports,
-- and a **knowledge graph** for structured financial reasoning.
+- and a **vector database** for similarity search across news & reports.
 
 ---
 
@@ -37,7 +35,7 @@ flowchart TD
 
 ## ⚙️ Tech stack
 
-- **Python 3.10+**
+- **Python 3.13+**
 - **FastAPI:** HTTP server handling Telegram webhooks
 - **RabbitMQ** (via Docker): task queue broker
 - **ChromaDB:** for future semantic vector search
@@ -50,7 +48,7 @@ flowchart TD
 
 ### 🚀 Prerequisites
 
-- Python ≥3.10
+- Python ≥3.13
 - Docker + docker-compose
 - ngrok (or cloudflared tunnel)
 
@@ -65,51 +63,25 @@ cd optifeed
 uv sync
 source .venv/bin/activate
 
-# Start RabbitMQ
-docker-compose up -d
-
-# Launch FastAPI server
-cd src && uvicorn api.app:app --reload --host 0.0.0.0 --port 8000
-
-# Expose FastAPI via ngrok
-ngrok http 8000
-```
-
----
-
-### 🔗 Register your Telegram webhook
-
-Replace `NGROK_URL` with your actual ngrok HTTPS endpoint:
-
-```bash
-curl -X POST "https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook" -d "url=https://NGROK_URL/webhook"
-```
-
----
-
-### 🚀 Start the worker
-
-```bash
-python worker/worker.py
-```
-
----
+# Start services
+make build && make up
+````
 
 ## ✅ Typical flow
 
 1. A user sends a command like:
 
 ```
-/ask something
+Ask something to @<bot_username>
 ```
 
 2. Telegram POSTs it to `/webhook`.
 3. FastAPI queues a task in RabbitMQ.
-4. The worker picks it up, does vector + LLM analysis.
+4. The worker picks it up and processes the request.
 5. The bot replies:
 
 ```
-✅ Bot: I received your query "something". Here's what I found...
+✅ Bot: Here's what I found...
 ```
 
 ---
@@ -118,10 +90,8 @@ python worker/worker.py
 
 - [x] FastAPI + Telegram webhook integration
 - [x] Async task processing via RabbitMQ
+- [x] Rich contextual analysis with Gemini
 - [ ] Integration with Chroma for vector similarity
-- [ ] Rich contextual analysis with Gemini
-- [ ] Knowledge graph (Neo4j) for structured market reasoning
-- [ ] Deployment on Raspberry Pi 5 with HTTPS via certbot
 
 ---
 

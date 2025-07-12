@@ -1,6 +1,5 @@
 from optifeed.api.app import publish_task
 from optifeed.db.sqlite_utils import get_unsent_analyzed_news, mark_as_sent
-from optifeed.utils.config import TELEGRAM_CHAT_ID
 from optifeed.utils.logger import logger
 
 
@@ -13,6 +12,7 @@ def escape_markdown(text: str) -> str:
 
 
 def detect_signals_and_push():
+    """Detect significant market signals and push alerts to Telegram."""
     logger.info("🚀 Checking for new signals...")
 
     news_items = get_unsent_analyzed_news()

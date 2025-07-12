@@ -15,24 +15,29 @@ from optifeed.utils.logger import logger
 
 # === Utilities ===
 def clean_html(text):
+    """Remove HTML tags and return plain text."""
     return BeautifulSoup(text or "", "html.parser").get_text()
 
 
 def normalize_text(text):
+    """Normalize text by removing extra spaces and special characters."""
     text = unicodedata.normalize("NFKC", text or "")
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
 
 def extract_tickers(text):
+    """Extract stock tickers from text."""
     return re.findall(r"\$[A-Z]{1,6}|\b[A-Z]{2,5}:[A-Z]{2,3}\b", text or "")
 
 
 def hash_event(headline):
+    """Generate a unique hash for the event based on the headline."""
     return hashlib.sha256(headline.encode()).hexdigest()
 
 
 def parse_date(date_str):
+    """Parse date string into a UTC datetime object."""
     if not date_str:
         return None
     try:
@@ -60,6 +65,7 @@ def parse_date(date_str):
 
 
 def filter_last_day(news_items):
+    """Filter news items to only include those from the last 24 hours."""
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=24)
     filtered = []
@@ -72,6 +78,7 @@ def filter_last_day(news_items):
 
 # === Fetching ===
 def fetch_fmp_news():
+    """Fetch news from Financial Modeling Prep API."""
     logger.info("Fetching news from Financial Modeling Prep...")
     url = f"https://financialmodelingprep.com/api/v3/fmp/articles?apikey={FMP_API_KEY}"
     try:
@@ -86,6 +93,7 @@ def fetch_fmp_news():
 
 
 def fetch_brave_news():
+    """Fetch news from Brave Search API."""
     logger.info("Fetching news from Brave Search...")
     url = "https://api.search.brave.com/res/v1/news/search"
     headers = {"Accept": "application/json", "X-Subscription-Token": BRAVE_API_KEY}
@@ -106,6 +114,7 @@ def fetch_brave_news():
 
 
 def build_event(headline, body, published, tickers, source):
+    """Build a news event dictionary."""
     return {
         "headline": headline,
         "body": body,
@@ -117,6 +126,7 @@ def build_event(headline, body, published, tickers, source):
 
 
 def fetch_all_news():
+    """Fetch news from all sources and return a list of events."""
     logger.info("Fetching news from all sources...")
     now_str = datetime.now(timezone.utc).isoformat()
     events = []
@@ -171,6 +181,7 @@ THEMES = {
 
 
 def filter_and_categorize(events):
+    """Filter and categorize news events based on predefined themes."""
     filtered = []
     theme_counter = Counter()
 
@@ -190,6 +201,7 @@ def filter_and_categorize(events):
 
 
 def preprocess_news(events) -> list[NewsItem]:
+    """Preprocess raw news events into NewsItem objects."""
     cleaned_news = []
     for event in events:
         full_text = normalize_text(event["headline"] + " " + event["body"])

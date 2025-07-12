@@ -12,7 +12,6 @@ def analyze_micro(
     """Analyze microeconomic impact of macro news on a specific ticker."""
     prompt = f"""
     You are a senior equity analyst assistant.
-
     Given:
     - This macroeconomic news impact analysis:
     Text: {news.text}
@@ -27,11 +26,10 @@ def analyze_micro(
     ROE: {financial_data.roe or "N/A"}
     Profit Margin: {financial_data.profit_margin or "N/A"}
     Debt/Equity: {financial_data.debt_equity or "N/A"}
-
     Please respond ONLY in this exact JSON format:
     {{
     "micro_score": float between -1 and 1,
-    "rationale": "short explanation (max 5 lines)",
+    "rationale": "short explanation (max 5 lines) in French",
     "suggested_action": "buy / hold / sell / watch"
     }}
     """

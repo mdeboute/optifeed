@@ -13,6 +13,8 @@ ENV PATH="/root/.local/bin:${PATH}"
 COPY optifeed /app/optifeed
 COPY pyproject.toml /app/
 COPY .env /app/.env
+COPY credentials.json /app/
+COPY token.json /app/
 
 RUN uv sync
 

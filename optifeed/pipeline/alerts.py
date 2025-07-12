@@ -50,7 +50,7 @@ def main():
         save_analyzed_news(analysis)
         analyzed_count += 1
         logger.success(
-            f"✅ Analyzed {item.id} with impact {analysis.impact_score:.2f}, "
+            f"✅ Analyzed {item.id} with magnitude {analysis.magnitude_score:.2f}, "
         )
 
     logger.info(f"🎯 Analysis completed. Total analyzed: {analyzed_count}.")

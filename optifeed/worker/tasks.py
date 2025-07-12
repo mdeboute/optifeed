@@ -1,29 +1,26 @@
 from optifeed.api.app import publish_task
 from optifeed.db.sqlite_utils import get_unsent_analyzed_news, mark_as_sent
-from optifeed.telegram.telegram import escape_markdown_v2
 from optifeed.utils.logger import logger
 
-# --- Telegram constants
 MAX_MESSAGE_LENGTH = 4096
-SOFT_LIMIT = 3900
 
 
 def format_signal_message(news) -> str:
     """
-    Format a news item as a MarkdownV2-safe Telegram message.
+    Format a news item as a plain-text message (no MarkdownV2 escaping).
     """
-    escaped_text = escape_markdown_v2(news.text)
+    text = news.text
     sectors = news.affected_sectors or ["Other"]
-    escaped_sectors = ", ".join(escape_markdown_v2(s) for s in sectors)
+    sectors_text = ", ".join(sectors)
 
-    header = "*🗞️ Market Signal*\n\n"
+    header = "🗞️ Market Signal\n\n"
     footer = (
-        f"\n\n• Impact: *{round(news.impact_score or 0, 2)}*"
-        f"\n• Magnitude: *{round(news.magnitude_score or 0, 2)}*"
-        f"\n• Sectors: _{escaped_sectors}_"
+        f"\n\n- Impact: {round(news.impact_score or 0, 2)}"
+        f"\n- Magnitude: {round(news.magnitude_score or 0, 2)}"
+        f"\n- Sectors: {sectors_text}"
     )
 
-    return header + escaped_text + footer
+    return header + text + footer
 
 
 def split_message(message: str, max_length: int = MAX_MESSAGE_LENGTH) -> list[str]:
@@ -35,7 +32,7 @@ def split_message(message: str, max_length: int = MAX_MESSAGE_LENGTH) -> list[st
     while len(message) > max_length:
         split_at = message.rfind("\n", 0, max_length)
         if split_at == -1:
-            split_at = max_length  # no newline, hard split
+            split_at = max_length
 
         chunks.append(message[:split_at].strip())
         message = message[split_at:].strip()
@@ -47,16 +44,13 @@ def split_message(message: str, max_length: int = MAX_MESSAGE_LENGTH) -> list[st
 
 
 def detect_signals_and_push():
-    """
-    Detect significant market signals and push them to Telegram as tasks.
-    """
     logger.info("🚀 Checking for new signals...")
 
     news_items = get_unsent_analyzed_news()
     logger.info(f"✅ Found {len(news_items)} unsent analyzed items.")
 
-    impactful = [n for n in news_items if (n.magnitude_score or 0) > 0.7]
-    logger.info(f"✅ {len(impactful)} items with magnitude > 0.7.")
+    impactful = [n for n in news_items if (n.magnitude_score or 0) >= 0.7]
+    logger.info(f"✅ {len(impactful)} items with magnitude >= 0.7.")
 
     if not impactful:
         logger.info("🎯 Nothing significant today.")

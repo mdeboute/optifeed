@@ -1,4 +1,8 @@
+import base64
+import html
 import os.path
+import re
+from typing import List
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -6,20 +10,15 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from optifeed.api.app import publish_task
-from optifeed.utils.config import (
-    GMAIL_CREDENTIALS_FILE,
-    GMAIL_SCOPES,
-    GMAIL_TOKEN_FILE,
-)
+from optifeed.utils.config import GMAIL_CREDENTIALS_FILE, GMAIL_SCOPES, GMAIL_TOKEN_FILE
 from optifeed.utils.llm import ask_something
 from optifeed.utils.logger import logger
+from optifeed.utils.rabbitmq import publish_task
 
 
-def get_gmail_service():
-    """
-    Authenticate and return the Gmail API service.
-    """
+def authenticate():
+    """Authenticate with Gmail API and return credentials."""
+    logger.info("🔐 Authenticating with Gmail...")
     creds = None
     if os.path.exists(GMAIL_TOKEN_FILE):
         creds = Credentials.from_authorized_user_file(GMAIL_TOKEN_FILE, GMAIL_SCOPES)
@@ -33,84 +32,104 @@ def get_gmail_service():
             creds = flow.run_local_server(port=0)
         with open(GMAIL_TOKEN_FILE, "w") as token:
             token.write(creds.to_json())
-    return build("gmail", "v1", credentials=creds)
+    logger.info("✅ Gmail authentication successful.")
+    return creds
 
 
-def fetch_latest_emails(service, query):
-    """
-    Fetch latest emails matching the given query and mark them as read.
-    """
-    try:
-        results = (
-            service.users()
+class GmailApi:
+    """Helper class to interact with Gmail API."""
+
+    def __init__(self):
+        creds = authenticate()
+        self.service = build("gmail", "v1", credentials=creds)
+
+    def find_emails(self, sender: str) -> List[dict]:
+        """Fetch unread emails from a specific sender."""
+        logger.info("📥 Fetching matching emails...")
+        request = (
+            self.service.users()
             .messages()
-            .list(userId="me", q=query, maxResults=3)
-            .execute()
+            .list(userId="me", q=f"from:{sender} is:unread", maxResults=200)
         )
-        messages = results.get("messages", [])
-        emails = []
+        try:
+            result = request.execute()
+            messages = result.get("messages", [])
+            logger.info(f"✅ Found {len(messages)} unread matching emails.")
+            return messages
+        except HttpError as e:
+            logger.error(f"❌ Failed to fetch emails: {e}")
+            return []
 
-        for msg in messages:
-            msg_data = (
-                service.users()
+    def get_email(self, email_id: str) -> str:
+        """Retrieve and decode the content of an email by its ID."""
+        try:
+            request = (
+                self.service.users()
                 .messages()
-                .get(userId="me", id=msg["id"], format="full")
-                .execute()
+                .get(userId="me", id=email_id, format="full")
             )
-            headers = msg_data["payload"]["headers"]
-            subject = next((h["value"] for h in headers if h["name"] == "Subject"), "")
-            from_ = next((h["value"] for h in headers if h["name"] == "From"), "")
-            snippet = msg_data.get("snippet", "")
-            body = ""
-            parts = msg_data["payload"].get("parts", [])
-            if parts:
-                for part in parts:
-                    if part["mimeType"] == "text/plain":
-                        body += part["body"].get("data", "")
-            else:
-                body += msg_data["payload"]["body"].get("data", "")
+            result = request.execute()
 
-            emails.append(
-                {
-                    "id": msg["id"],
-                    "from": from_,
-                    "subject": subject,
-                    "snippet": snippet,
-                    "body": body,
-                }
-            )
+            payload = result["payload"]
+            parts = payload.get("parts", [])
+            data = ""
 
-            # Mark email as read
-            service.users().messages().modify(
-                userId="me", id=msg["id"], body={"removeLabelIds": ["UNREAD"]}
+            for part in parts:
+                if part["mimeType"] == "text/plain":
+                    data = part["body"].get("data")
+                    break
+
+            if not data and "body" in payload:
+                data = payload["body"].get("data", "")
+
+            decoded = base64.urlsafe_b64decode(data).decode("utf-8")
+            return decoded
+
+        except Exception as e:
+            logger.error(f"❌ Error while decoding email {email_id}: {e}")
+            return ""
+
+    def mark_as_read(self, email_ids: List[str]):
+        """Mark the given email IDs as read in Gmail."""
+        if not email_ids:
+            return
+        logger.info(f"📬 Marking {len(email_ids)} emails as read...")
+        try:
+            self.service.users().messages().batchModify(
+                userId="me", body={"ids": email_ids, "removeLabelIds": ["UNREAD"]}
             ).execute()
-
-        return emails
-
-    except HttpError as error:
-        logger.error(f"❌ An error occurred: {error}")
-        return []
+            logger.info("✅ Emails marked as read.")
+        except HttpError as e:
+            logger.error(f"❌ Failed to mark emails as read: {e}")
 
 
-def summarize_emails_with_gemini(emails):
-    """
-    Use Gemini to create a short daily summary from email contents.
-    """
-    content = ""
-    for email in emails:
-        content += f"\n=== FROM: {email['from']} ===\nBODY: {email['body']}\n"
+def clean_email_content(raw: str) -> str:
+    """Clean and sanitize raw email text before summarization."""
+    text = re.sub(r"https?://\S+", "", raw)
+    text = re.sub(r"Se desinscrire.*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"Tous droits reserves.*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"[-_]{3,}", "\n", text)
+    text = text.replace("\r", "")
+    text = re.sub(r"\n{2,}", "\n\n", text)
+    return html.unescape(text.strip())
 
+
+def summarize_emails_with_gemini(contents: str) -> str:
+    """Generate a daily digest summary using Gemini based on email contents."""
     prompt = f"""
-    You are an assistant reading newsletters.
-    Your task is to generate a short daily digest in French.
-    Focus on key news, trends, or investment insights. Keep it clear and concise.
-    Your output will be sent to a Telegram channel, so you must write it in a cool and engaging way with markdown formatting (no codeblock), emojis and be concise.
-
-    Here is the raw content from the emails to summarize:
-
-    {content}
+    Generate a concise daily digest in French based on raw newsletter content below.
+    Instructions:
+    - Start with a friendly greeting
+    - Use section titles
+    - Format lists with "-"
+    - No code blocks or hyperlinks
+    - Use emojis for tone, but keep it natural
+    - Keep it brief and engaging
+    - End with a positive sign-off
+    - Don't include any commercial offers or promotions
+    Raw content:
+    {contents}
     """
-
     try:
         response = ask_something(prompt)
         return response.strip()
@@ -120,23 +139,30 @@ def summarize_emails_with_gemini(emails):
 
 
 def main():
-    service = get_gmail_service()
+    client = GmailApi()
 
-    # Query for emails from the specific senders
-    query = "from:(team@aktionnaire.com OR placement@news.meilleurtaux.com OR daily@timetosignoff.fr) is:unread"
-    emails = fetch_latest_emails(service, query)
-    logger.info(f"📨 Fetched {len(emails)} matching emails.")
+    sender = "team@aktionnaire.com OR placement@news.meilleurtaux.com OR daily@timetosignoff.fr"
+    emails = client.find_emails(sender)
 
-    if emails:
-        summary = summarize_emails_with_gemini(emails)
-        publish_task(
-            {
-                "type": "alert",
-                "message": f"📅 Daily Summary:\n\n{summary}",
-            }
-        )
-    else:
+    if not emails:
         logger.info("📭 No new emails to summarize today.")
+        return
+
+    email_ids = [email["id"] for email in emails]
+    raw_contents = [client.get_email(email_id) for email_id in email_ids]
+    cleaned_contents = [clean_email_content(c) for c in raw_contents if c.strip()]
+    full_content = "\n\n".join(cleaned_contents)
+
+    summary = summarize_emails_with_gemini(full_content)
+
+    publish_task(
+        {
+            "type": "alert",
+            "message": f"📅 Daily Summary:\n\n{summary}",
+        }
+    )
+
+    client.mark_as_read(email_ids)
 
 
 if __name__ == "__main__":

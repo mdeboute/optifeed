@@ -4,7 +4,7 @@ from typing import Optional
 
 import google.generativeai as genai
 
-from optifeed.utils.config import DEFAULT_LLM_MODEL
+from optifeed.utils.config import DEFAULT_LLM_MODEL, GOOGLE_API_KEY
 from optifeed.utils.logger import logger
 
 # --- Prompts
@@ -22,9 +22,10 @@ Answer in the language of the question.
 def ask_something(prompt: str, model=DEFAULT_LLM_MODEL) -> str:
     """Ask a question to the Gemini model and return the response."""
     try:
-        model = genai.GenerativeModel(model=model)
-        response = model.generate_content(prompt)
-        return response.text.strip()
+        genai.configure(api_key=GOOGLE_API_KEY)
+        llm = genai.GenerativeModel(model)
+        response = llm.generate_content(prompt)
+        return response.text
     except Exception as e:
         logger.error(f"❌ Gemini API error: {e}")
         return "❌ Error processing your request. Please try again later."

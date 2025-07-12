@@ -23,4 +23,5 @@ jobs:
           script: |
             cd /home/mdeboute/Desktop/optifeed
             git pull origin deploy
-            make stop && make clean && make build && make up
+            make stop && make build && make clean && make up
+            echo "Deployment completed successfully!"

@@ -1,18 +1,11 @@
 from optifeed.api.app import publish_task
 from optifeed.db.sqlite_utils import get_unsent_analyzed_news, mark_as_sent
+from optifeed.telegram.telegram import escape_markdown_v2
 from optifeed.utils.logger import logger
 
 # --- Telegram constants
 MAX_MESSAGE_LENGTH = 4096
 SOFT_LIMIT = 3900
-
-
-def escape_markdown_v2(text: str) -> str:
-    """
-    Escape MarkdownV2 special characters for Telegram messages.
-    """
-    escape_chars = r"_*[]()~`>#+-=|{}.!"
-    return "".join(f"\\{c}" if c in escape_chars else c for c in (text or ""))
 
 
 def format_signal_message(news) -> str:

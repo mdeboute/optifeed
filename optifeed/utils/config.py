@@ -1,6 +1,5 @@
 import os
 
-import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,7 +36,6 @@ RABBIT_PASS = os.getenv("RABBIT_PASS")
 
 # LLM
 DEFAULT_LLM_MODEL = "gemini-2.0-flash-lite"
-genai.configure(api_key=GOOGLE_API_KEY)
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")

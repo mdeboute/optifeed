@@ -11,8 +11,6 @@ ENV PYTHONPATH=/app
 ENV PATH="/root/.local/bin:${PATH}"
 
 COPY optifeed /app/optifeed
-COPY logs /app/logs
-COPY data /app/data
 COPY pyproject.toml /app/
 COPY .env /app/.env
 

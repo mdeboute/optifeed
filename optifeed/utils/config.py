@@ -14,11 +14,11 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_BOT_USERNAME = "@macro_hedge_bot"
 
 # Gmail API configuration
-SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
+GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 GMAIL_TOKEN_FILE = "token.json"
 GMAIL_CREDENTIALS_FILE = "credentials.json"
 
-DEFAULT_NEWS_LIMIT = 30
+DEFAULT_BRAVE_NEWS_LIMIT = 30
 
 # Directories
 DATA_DIR = os.path.join(os.path.dirname(__file__), "../..", "data")
@@ -36,9 +36,8 @@ RABBIT_USER = os.getenv("RABBIT_USER")
 RABBIT_PASS = os.getenv("RABBIT_PASS")
 
 # LLM
-LLM_MODEL = "gemini-2.0-flash-lite"
+DEFAULT_LLM_MODEL = "gemini-2.0-flash-lite"
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel(LLM_MODEL)
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")

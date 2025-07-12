@@ -64,7 +64,6 @@ flowchart TD
 git clone https://github.com/your-user/optifeed.git
 cd optifeed
 uv sync
-source .venv/bin/activate
 
 # Start services
 make build && make up

@@ -1,20 +1,8 @@
-import json
-import re
 from typing import Optional
 
 from optifeed.db.models import AnalyzedNews, NewsItem
-from optifeed.utils.config import model
+from optifeed.utils.llm import ask_something, parse_gemini_json
 from optifeed.utils.logger import logger
-
-
-def parse_gemini_json(text: str) -> Optional[dict]:
-    """Remove markdown ```json ... ``` if present and parse JSON."""
-    try:
-        cleaned = re.sub(r"^```json|^```|```$", "", text.strip(), flags=re.MULTILINE)
-        return json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        logger.error(f"❌ JSON decode failed: {e}")
-        return None
 
 
 def analyze_macro(news_item: NewsItem) -> Optional[AnalyzedNews]:
@@ -45,8 +33,8 @@ def analyze_macro(news_item: NewsItem) -> Optional[AnalyzedNews]:
     Source: {news_item.source}
     """
     try:
-        response = model.generate_content(prompt)
-        data = parse_gemini_json(response.text)
+        response = ask_something(prompt)
+        data = parse_gemini_json(response)
         if not data:
             return None
 

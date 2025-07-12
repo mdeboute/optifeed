@@ -7,6 +7,7 @@ from optifeed.utils.logger import logger
 
 
 def publish_task(task: dict):
+    """Publish a task to RabbitMQ."""
     try:
         with pika.BlockingConnection(
             pika.ConnectionParameters(

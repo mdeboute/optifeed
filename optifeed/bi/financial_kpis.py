@@ -11,13 +11,13 @@ def fetch_financial_kpis(ticker: str) -> TickerKPIs:
         info = stock.info
         return TickerKPIs(
             ticker=ticker,
-            companyName=info.get("shortName", ""),
-            marketCap=info.get("marketCap"),
+            company_name=info.get("shortName", ""),
+            market_cap=info.get("marketCap"),
             price=info.get("regularMarketPrice"),
-            peRatio=info.get("trailingPE"),
+            pe_ratio=info.get("trailingPE"),
             roe=info.get("returnOnEquity"),
-            profitMargin=info.get("profitMargins"),
-            debtEquity=info.get("debtToEquity"),
+            profit_margin=info.get("profitMargins"),
+            debt_equity=info.get("debtToEquity"),
         )
     except Exception as e:
         logger.error(f"❌ Failed fetching financials for {ticker}: {e}")

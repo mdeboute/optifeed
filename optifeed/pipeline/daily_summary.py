@@ -1,5 +1,4 @@
 import os.path
-from math import log
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -10,11 +9,10 @@ from googleapiclient.errors import HttpError
 from optifeed.api.app import publish_task
 from optifeed.utils.config import (
     GMAIL_CREDENTIALS_FILE,
+    GMAIL_SCOPES,
     GMAIL_TOKEN_FILE,
-    SCOPES,
-    TELEGRAM_CHAT_ID,
-    model,
 )
+from optifeed.utils.llm import ask_something
 from optifeed.utils.logger import logger
 
 
@@ -24,13 +22,13 @@ def get_gmail_service():
     """
     creds = None
     if os.path.exists(GMAIL_TOKEN_FILE):
-        creds = Credentials.from_authorized_user_file(GMAIL_TOKEN_FILE, SCOPES)
+        creds = Credentials.from_authorized_user_file(GMAIL_TOKEN_FILE, GMAIL_SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                GMAIL_CREDENTIALS_FILE, SCOPES
+                GMAIL_CREDENTIALS_FILE, GMAIL_SCOPES
             )
             creds = flow.run_local_server(port=0)
         with open(GMAIL_TOKEN_FILE, "w") as token:
@@ -94,13 +92,13 @@ def fetch_latest_emails(service, query):
         return []
 
 
-def summarize_emails_with_gemini(emails, model):
+def summarize_emails_with_gemini(emails):
     """
     Use Gemini to create a short daily summary from email contents.
     """
     content = ""
     for email in emails:
-        content += f"\n=== FROM: {email['from']} ===\nSUBJECT: {email['subject']}\nBODY: {email['body']}\n"
+        content += f"\n=== FROM: {email['from']} ===\nBODY: {email['body']}\n"
 
     prompt = f"""
     You are an assistant reading newsletters.
@@ -108,14 +106,14 @@ def summarize_emails_with_gemini(emails, model):
     Focus on key news, trends, or investment insights. Keep it clear and concise.
     Your output will be sent to a Telegram channel, so you must write it in a cool and engaging way with markdown formatting (no codeblock), emojis and be concise.
 
-    Here is the raw content from the emails:
+    Here is the raw content from the emails to summarize:
 
     {content}
     """
 
     try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
+        response = ask_something(prompt)
+        return response.strip()
     except Exception as e:
         logger.error(f"❌ Gemini API error: {e}")
         return "❌ Could not generate summary."
@@ -130,7 +128,7 @@ def main():
     logger.info(f"📨 Fetched {len(emails)} matching emails.")
 
     if emails:
-        summary = summarize_emails_with_gemini(emails, model)
+        summary = summarize_emails_with_gemini(emails)
         publish_task(
             {
                 "type": "alert",

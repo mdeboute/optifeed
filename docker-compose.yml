@@ -7,8 +7,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBIT_USER: guest
-      RABBIT_PASS: guest
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 5s
@@ -20,7 +20,7 @@ services:
     environment:
       - SERVICE=fastapi
     ports:
-      - "8000:8000"
+      - "8100:8100"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -49,7 +49,7 @@ services:
 
   ngrok:
     image: ngrok/ngrok:latest
-    command: http fastapi:8000 --domain=${NGROK_DOMAIN}
+    command: http fastapi:8100 --domain=${NGROK_DOMAIN}
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
     ports:

@@ -1,0 +1,40 @@
+import json
+import re
+from typing import Optional
+
+from google.generativeai import genai
+
+from optifeed.utils.config import DEFAULT_LLM_MODEL
+from optifeed.utils.logger import logger
+
+# --- Prompts
+BASE_PROMPT = """
+You are a helpful assistant that answers questions based on the provided context.
+You will receive a question and you should provide a concise and accurate answer.
+Make sure to keep your responses short and to the point.
+If the question is not clear, ask for clarification.
+Answer with a little bit of humor when you can.
+Answer in the language of the question.
+"""
+
+
+# --- Gemini interaction
+def ask_something(prompt: str, model=DEFAULT_LLM_MODEL) -> str:
+    """Ask a question to the Gemini model and return the response."""
+    try:
+        model = genai.GenerativeModel(model=model)
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        logger.error(f"❌ Gemini API error: {e}")
+        return "❌ Error processing your request. Please try again later."
+
+
+def parse_gemini_json(text: str) -> Optional[dict]:
+    """Remove markdown ```json ... ``` if present and parse JSON."""
+    try:
+        cleaned = re.sub(r"^```json|^```|```$", "", text.strip(), flags=re.MULTILINE)
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        logger.error(f"❌ JSON decode failed: {e}")
+        return None

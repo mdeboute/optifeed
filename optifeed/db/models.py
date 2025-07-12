@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 class NewsItem(BaseModel):
     """News item model for storing preprocessed news data."""
+
     id: str
     text: str
     tickers: Optional[str] = None
@@ -14,6 +15,7 @@ class NewsItem(BaseModel):
 
 class AnalyzedNews(BaseModel):
     """Analyzed news model for storing macroeconomic analysis results."""
+
     id: str
     text: str
     impact_score: Optional[float] = None
@@ -23,18 +25,20 @@ class AnalyzedNews(BaseModel):
 
 class TickerKPIs(BaseModel):
     """Ticker KPIs model for storing financial data of a stock."""
+
     ticker: str
-    companyName: Optional[str] = ""
-    marketCap: Optional[int] = None
+    company_name: Optional[str] = ""
+    market_cap: Optional[int] = None
     price: Optional[float] = None
-    peRatio: Optional[float] = None
+    pe_ratio: Optional[float] = None
     roe: Optional[float] = None
-    profitMargin: Optional[float] = None
-    debtEquity: Optional[float] = None
+    profit_margin: Optional[float] = None
+    debt_equity: Optional[float] = None
 
 
 class TickerTendency(BaseModel):
     """Ticker tendency model for storing microeconomic analysis results."""
+
     ticker: str
     micro_score: Optional[float] = None
     rationale: Optional[str] = ""

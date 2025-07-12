@@ -1,4 +1,4 @@
-from optifeed.bi.llm.macro_analyzer import analyze_macro
+from optifeed.bi.macro_analyzer import analyze_macro
 from optifeed.bi.news import (
     fetch_all_news,
     filter_and_categorize,

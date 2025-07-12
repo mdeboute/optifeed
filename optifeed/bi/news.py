@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from dateutil import parser as date_parser
 
 from optifeed.db.models import NewsItem
-from optifeed.utils.config import BRAVE_API_KEY, DEFAULT_NEWS_LIMIT, FMP_API_KEY
+from optifeed.utils.config import BRAVE_API_KEY, DEFAULT_BRAVE_NEWS_LIMIT, FMP_API_KEY
 from optifeed.utils.logger import logger
 
 
@@ -96,12 +96,12 @@ def fetch_brave_news():
     """Fetch news from Brave Search API."""
     logger.info("Fetching news from Brave Search...")
     url = "https://api.search.brave.com/res/v1/news/search"
-    headers = {"Accept": "application/json", "X-Subscription-Token": BRAVE_API_KEY}
+    headers = {"Accept": "application/json", "x-subscription-token": BRAVE_API_KEY}
     query = (
         "earnings OR acquisition OR downgrade OR bankruptcy OR war OR oil OR inflation OR "
         "fed OR ECB OR recession OR strike OR cyberattack OR terror OR election OR commodities OR climate OR terrorist"
     )
-    params = {"q": query, "count": DEFAULT_NEWS_LIMIT}
+    params = {"q": query, "count": DEFAULT_BRAVE_NEWS_LIMIT, "country": "ALL"}
     try:
         resp = requests.get(url, headers=headers, params=params, timeout=10)
         data = resp.json()

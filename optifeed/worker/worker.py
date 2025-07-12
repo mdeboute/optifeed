@@ -1,44 +1,18 @@
 import json
 import time
 
-import google.generativeai as genai
 import pika
 
 from optifeed.telegram.telegram import send_telegram_message
 from optifeed.utils.config import (
     ADMIN_USER,
-    GOOGLE_API_KEY,
-    LLM_MODEL,
     RABBIT_HOST,
     RABBIT_PASS,
     RABBIT_USER,
     TELEGRAM_BOT_USERNAME,
 )
+from optifeed.utils.llm import BASE_PROMPT, ask_something
 from optifeed.utils.logger import logger
-
-# --- Gemini model setup
-genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel(LLM_MODEL)
-
-# --- Prompts
-BASE_PROMPT = """
-You are a helpful assistant that answers questions based on the provided context.
-You will receive a question and you should provide a concise and accurate answer.
-Make sure to keep your responses short and to the point.
-If the question is not clear, ask for clarification.
-Answer with a little bit of humor when you can.
-"""
-
-
-# --- Gemini interaction
-def ask_something(prompt: str) -> str:
-    """Ask a question to the Gemini model and return the response."""
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        logger.error(f"❌ Gemini API error: {e}")
-        return "❌ Error processing your request. Please try again later."
 
 
 # --- Task processing
@@ -51,7 +25,6 @@ def process_task(task: dict):
             if TELEGRAM_BOT_USERNAME not in query:
                 logger.debug("🔍 Query ignored: does not mention bot username.")
                 return
-
             if query.startswith("/ping"):
                 send_telegram_message("🏓 Pong!")
             else:

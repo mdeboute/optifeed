@@ -1,8 +1,8 @@
 from typing import Optional
 
-from optifeed.bi.llm.macro_analyzer import parse_gemini_json
+from optifeed.bi.macro_analyzer import parse_gemini_json
 from optifeed.db.models import AnalyzedNews, TickerKPIs, TickerTendency
-from optifeed.utils.config import model
+from optifeed.utils.llm import ask_something
 from optifeed.utils.logger import logger
 
 
@@ -20,13 +20,13 @@ def analyze_micro(
     Magnitude score: {news.magnitude_score}
     Reasoning: {news.reasoning}
     - And these fundamentals for {financial_data.ticker}:
-    Company: {financial_data.companyName or "N/A"}
-    Market Cap: {financial_data.marketCap or "N/A"}
+    Company: {financial_data.company_name or "N/A"}
+    Market Cap: {financial_data.market_cap or "N/A"}
     Price: {financial_data.price or "N/A"}
-    PE Ratio: {financial_data.peRatio or "N/A"}
+    PE Ratio: {financial_data.pe_ratio or "N/A"}
     ROE: {financial_data.roe or "N/A"}
-    Profit Margin: {financial_data.profitMargin or "N/A"}
-    Debt/Equity: {financial_data.debtEquity or "N/A"}
+    Profit Margin: {financial_data.profit_margin or "N/A"}
+    Debt/Equity: {financial_data.debt_equity or "N/A"}
 
     Please respond ONLY in this exact JSON format:
     {{
@@ -36,7 +36,7 @@ def analyze_micro(
     }}
     """
     try:
-        response = model.generate_content(prompt)
+        response = ask_something(prompt)
         data = parse_gemini_json(response.text)
         if not data:
             return None

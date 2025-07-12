@@ -1,6 +1,9 @@
 
 # 📈 Optifeed
 
+[![Deployment](https://github.com/mdeboute/optifeed/actions/workflows/deploy.yml/badge.svg)](https://github.com/mdeboute/optifeed/actions/workflows/deploy.yml)
+
+
 **Optifeed** is an **intelligent Telegram bot** built to:
 
 - **spot investment opportunities** from financial news and macro events,
@@ -98,3 +101,5 @@ Ask something to @<bot_username>
 ## 🤝 Contributions
 
 If you have cool ideas around financial NLP, sentiment scoring, or want to integrate more data sources — feel free to open an issue or PR!
+
+Please follow the [CONTRIBUTING.md](./CONTRIBUTING.md) guidelines.

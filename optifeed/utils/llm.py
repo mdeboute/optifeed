@@ -2,7 +2,7 @@ import json
 import re
 from typing import Optional
 
-from google.generativeai import genai
+import google.generativeai as genai
 
 from optifeed.utils.config import DEFAULT_LLM_MODEL
 from optifeed.utils.logger import logger

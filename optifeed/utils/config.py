@@ -39,3 +39,6 @@ DEFAULT_LLM_MODEL = "gemini-2.0-flash-lite"
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")
+
+# Pipeline alerts
+ALERTS_ENABLED_FILE = "/tmp/alerts_enabled.flag"

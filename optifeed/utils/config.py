@@ -35,7 +35,7 @@ RABBIT_USER = os.getenv("RABBIT_USER")
 RABBIT_PASS = os.getenv("RABBIT_PASS")
 
 # LLM
-DEFAULT_LLM_MODEL = "gemini-2.5-flash-lite"
+DEFAULT_LLM_MODEL = "gemini-2.5-flash-lite-preview-06-17"
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")

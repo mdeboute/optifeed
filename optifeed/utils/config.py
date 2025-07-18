@@ -35,10 +35,12 @@ RABBIT_USER = os.getenv("RABBIT_USER")
 RABBIT_PASS = os.getenv("RABBIT_PASS")
 
 # LLM
-DEFAULT_LLM_MODEL = "gemini-2.0-flash-lite"
+DEFAULT_LLM_MODEL = "gemini-2.5-flash-lite"
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")
 
 # Pipeline alerts
-ALERTS_ENABLED_FILE = "/tmp/alerts_enabled.flag"
+ALERTS_ENABLED_FILE = os.path.join(
+    os.path.dirname(__file__), "../..", "alerts_enabled.flag"
+)

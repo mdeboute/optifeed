@@ -120,8 +120,7 @@ def summarize_emails_with_gemini(contents: str) -> str:
     Generate a concise daily digest in French based on raw newsletter content below.
     Instructions:
     - Start with a friendly greeting
-    - Use section titles
-    - Format lists with "-"
+    - Use section titles, no formating
     - No code blocks or hyperlinks
     - Use emojis for tone, but keep it natural
     - Keep it brief and engaging
@@ -158,7 +157,7 @@ def main():
     publish_task(
         {
             "type": "alert",
-            "message": f"📅 Daily Summary:\n\n{summary}",
+            "message": summary,
         }
     )
 

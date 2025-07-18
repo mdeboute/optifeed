@@ -13,6 +13,14 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
+      - name: 🧪 Test Raspberry Pi SSH connectivity
+        run: |
+          echo "Testing connection to ${{ secrets.PI_HOST }} on port ${{ secrets.PI_PORT }}"
+          nc -zv ${{ secrets.PI_HOST }} ${{ secrets.PI_PORT }} || {
+            echo "❌ Cannot connect to Raspberry Pi on port ${{ secrets.PI_PORT }}.";
+            exit 1;
+          }
+
       - name: 🚀 Deploy to Raspberry Pi via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -21,7 +29,16 @@ jobs:
           username: ${{ secrets.PI_USER }}
           key: ${{ secrets.PI_SSH_KEY }}
           script: |
-            cd /home/mdeboute/Desktop/optifeed
+            set -e  # Stop on first error
+            echo "✅ Connected to Raspberry Pi. Starting deployment..."
+            cd /home/mdeboute/Desktop/optifeed || {
+              echo "❌ Directory not found!";
+              exit 1;
+            }
+            git status
             git pull origin deploy
-            make stop && make build && make clean && make up
-            echo "Deployment completed successfully!"
+            make stop || echo "ℹ️ Nothing to stop"
+            make build
+            make clean
+            make up
+            echo "✅ Deployment completed successfully!"

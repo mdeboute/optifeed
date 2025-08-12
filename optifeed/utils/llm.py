@@ -2,7 +2,9 @@ import json
 import re
 from typing import Optional
 
-from pydantic_ai import Agent, AgentRunResult, ModelMessage
+from pydantic_ai import Agent
+from pydantic_ai.agent import AgentRunResult
+from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.providers.google import GoogleProvider
 

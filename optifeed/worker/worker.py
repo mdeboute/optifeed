@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 import pika
-from pydantic_ai import ModelMessage
+from pydantic_ai.messages import ModelMessage
 
 from optifeed.telegram.telegram import send_telegram_message
 from optifeed.utils.config import (
@@ -29,7 +29,7 @@ MAX_MESSAGES = 50  # Hard limit on message count
 
 def estimate_context_length(messages: List[ModelMessage]) -> int:
     """Estimate the total character count of the conversation history."""
-    return sum(len(msg.content) for msg in messages)
+    return sum(len(msg.parts[0].content) for msg in messages)
 
 
 def trim_history_by_context(messages: List[ModelMessage]) -> List[ModelMessage]:
@@ -82,10 +82,9 @@ def get_user_history(user_id: int) -> List[ModelMessage]:
     return conversation_history[user_id]
 
 
-def add_to_history(user_id: int, role: str, content: str):
+def add_history(user_id: int, history_messages: list[ModelMessage]):
     """Add a message to user's conversation history with intelligent trimming."""
-    message = ModelMessage(role=role, content=content)
-    conversation_history[user_id].append(message)
+    conversation_history[user_id] = history_messages
 
     # Apply context-aware trimming
     conversation_history[user_id] = trim_history_by_context(
@@ -149,21 +148,15 @@ def process_task(task: dict):
             if user_id == int(ADMIN_USER):
                 prompt += "\nYou're talking to the admin so call it 'my lord' or other fancy name/title."
 
-            # Add user's question to history before processing
-            add_to_history(user_id, "user", query)
-
             try:
                 # Ask the LLM with conversation history
                 result = ask_something(
                     f"Question: {prompt}", message_history=user_history
                 )
-                response = result.output
-
-                # Add assistant's response to history
-                add_to_history(user_id, "assistant", response)
+                add_history(user_id, history_messages=result.all_messages())
 
                 # Send response
-                send_telegram_message(response)
+                send_telegram_message(result.output)
 
                 # Log context info
                 final_history = get_user_history(user_id)

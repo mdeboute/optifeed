@@ -1,12 +1,10 @@
 import base64
 import html
-import os.path
+import json
 import re
 from typing import List
 
-from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
@@ -16,32 +14,38 @@ from optifeed.utils.logger import logger
 from optifeed.utils.rabbitmq import publish_task
 
 
-def authenticate():
-    """Authenticate with Gmail API and return credentials."""
-    logger.info("🔐 Authenticating with Gmail...")
-    creds = None
-    if os.path.exists(GMAIL_TOKEN_FILE):
-        creds = Credentials.from_authorized_user_file(GMAIL_TOKEN_FILE, GMAIL_SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                GMAIL_CREDENTIALS_FILE, GMAIL_SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-        with open(GMAIL_TOKEN_FILE, "w") as token:
-            token.write(creds.to_json())
-    logger.info("✅ Gmail authentication successful.")
-    return creds
+def create_service(
+    CLIENT_SECRET_FILE,
+    REFRESH_TOKEN,
+    SCOPES,
+    API_SERVICE_NAME,
+    API_VERSION,
+):
+    f = open(CLIENT_SECRET_FILE, "r")
+    data = json.load(f)
+    CLIENT_ID, CLIENT_SECRET = data["web"]["client_id"], data["web"]["client_secret"]
+    creds = Credentials.from_authorized_user_info(
+        info={
+            "refresh_token": REFRESH_TOKEN,
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+        },
+        scopes=SCOPES,
+    )
+    return build(API_SERVICE_NAME, API_VERSION, credentials=creds)
 
 
 class GmailApi:
     """Helper class to interact with Gmail API."""
 
     def __init__(self):
-        creds = authenticate()
-        self.service = build("gmail", "v1", credentials=creds)
+        self.service = create_service(
+            CLIENT_SECRET_FILE=GMAIL_CREDENTIALS_FILE,
+            REFRESH_TOKEN=GMAIL_TOKEN_FILE,
+            SCOPES=GMAIL_SCOPES,
+            API_SERVICE_NAME="gmail",
+            API_VERSION="v1",
+        )
 
     def find_emails(self, sender: str) -> List[dict]:
         """Fetch unread emails from a specific sender."""
@@ -130,7 +134,7 @@ def summarize_emails_with_gemini(contents: str) -> str:
     {contents}
     """
     try:
-        response = ask_something(prompt)
+        response = ask_something(prompt).output
         return response.strip()
     except Exception as e:
         logger.error(f"❌ Gemini API error: {e}")

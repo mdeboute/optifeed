@@ -1,6 +1,6 @@
 from typing import Optional
 
-from optifeed.bi.macro_analyzer import parse_gemini_json
+from optifeed.bi.macro_analyzer import parse_json_block
 from optifeed.db.models import AnalyzedNews, TickerKPIs, TickerTendency
 from optifeed.utils.llm import ask_something
 from optifeed.utils.logger import logger
@@ -34,8 +34,8 @@ def analyze_micro(
     }}
     """
     try:
-        response = ask_something(prompt)
-        data = parse_gemini_json(response.text)
+        response = ask_something(prompt).output
+        data = parse_json_block(response.text)
         if not data:
             return None
         return TickerTendency(

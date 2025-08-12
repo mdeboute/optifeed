@@ -1,7 +1,7 @@
 from typing import Optional
 
 from optifeed.db.models import AnalyzedNews, NewsItem
-from optifeed.utils.llm import ask_something, parse_gemini_json
+from optifeed.utils.llm import ask_something, parse_json_block
 from optifeed.utils.logger import logger
 
 
@@ -32,8 +32,8 @@ def analyze_macro(news_item: NewsItem) -> Optional[AnalyzedNews]:
     Source: {news_item.source}
     """
     try:
-        response = ask_something(prompt)
-        data = parse_gemini_json(response)
+        response = ask_something(prompt).output
+        data = parse_json_block(response)
         if not data:
             return None
 

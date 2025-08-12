@@ -14,8 +14,6 @@ COPY optifeed /app/optifeed
 COPY pyproject.toml /app/
 COPY .env /app/.env
 COPY credentials.json /app/
-COPY token.json /app/
-COPY *.flag /app/
 
 RUN uv sync
 

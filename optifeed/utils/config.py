@@ -14,7 +14,7 @@ TELEGRAM_BOT_USERNAME = "@macro_hedge_bot"
 
 # Gmail API configuration
 GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
-GMAIL_TOKEN_FILE = "token.json"
+GMAIL_TOKEN_FILE = os.getenv("GMAIL_TOKEN_FILE")
 GMAIL_CREDENTIALS_FILE = "credentials.json"
 
 DEFAULT_BRAVE_NEWS_LIMIT = 30
@@ -39,8 +39,3 @@ DEFAULT_LLM_MODEL = "gemini-2.5-flash-lite-preview-06-17"
 
 # Telegram admin user
 ADMIN_USER = os.getenv("ADMIN_USER")
-
-# Pipeline alerts
-ALERTS_ENABLED_FILE = os.path.join(
-    os.path.dirname(__file__), "../..", "alerts_enabled.flag"
-)
